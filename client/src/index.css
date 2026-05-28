@@ -1,0 +1,1062 @@
+/* ==========================================================================
+   🏨 Grand Horizon Hotel Management System - Premium Design System (CSS)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap');
+
+:root {
+  /* Color Palette (HSL Tailored) */
+  --bg-primary: #0a0f1d;
+  --bg-secondary: #131b2e;
+  --bg-card: #1c2642;
+  --border-color: #2e3c60;
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  --accent-gold: #d4af37;
+  --accent-gold-glow: rgba(212, 175, 55, 0.15);
+  --accent-blue: #3b82f6;
+  
+  /* Status Colors */
+  --status-available: #10b981;
+  --status-available-bg: rgba(16, 185, 129, 0.1);
+  --status-occupied: #3b82f6;
+  --status-occupied-bg: rgba(59, 130, 246, 0.1);
+  --status-dirty: #f59e0b;
+  --status-dirty-bg: rgba(245, 158, 11, 0.1);
+  --status-maintenance: #ef4444;
+  --status-maintenance-bg: rgba(239, 68, 68, 0.1);
+
+  /* Fonts */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  /* Shadows & Glassmorphism */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(19, 27, 46, 0.85);
+  --glass-border: rgba(46, 60, 96, 0.4);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 70px;
+  --border-radius: 12px;
+}
+
+[data-theme="light"] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --accent-gold: #b58900;
+  --accent-gold-glow: rgba(181, 137, 0, 0.1);
+  --accent-blue: #2563eb;
+
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  
+  --status-available-bg: rgba(16, 185, 129, 0.15);
+  --status-occupied-bg: rgba(59, 130, 246, 0.15);
+  --status-dirty-bg: rgba(245, 158, 11, 0.15);
+  --status-maintenance-bg: rgba(239, 68, 68, 0.15);
+}
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ==========================================================================
+   Layout Shell
+   ========================================================================== */
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  padding: 1.5rem;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.logo-icon {
+  color: var(--accent-gold);
+  width: 32px;
+  height: 32px;
+}
+
+.logo-text {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: var(--text-primary);
+  background-color: var(--bg-card);
+}
+
+.nav-item.active {
+  border-color: var(--accent-gold-glow);
+  box-shadow: 0 0 12px var(--accent-gold-glow);
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+/* Main Area */
+.main-content {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header */
+.main-header {
+  height: var(--header-height);
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.header-title-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.header-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.system-time {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Content Container */
+.content-body {
+  padding: 2rem;
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Dashboard Page
+   ========================================================================== */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-muted);
+}
+
+.metric-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.metric-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.metric-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-icon-box.gold {
+  background-color: var(--accent-gold-glow);
+  color: var(--accent-gold);
+}
+
+.metric-icon-box.blue {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--accent-blue);
+}
+
+.metric-icon-box.green {
+  background-color: var(--status-available-bg);
+  color: var(--status-available);
+}
+
+.metric-icon-box.orange {
+  background-color: var(--status-dirty-bg);
+  color: var(--status-dirty);
+}
+
+/* Occupancy Timeline / Chart placeholder & recent actions split */
+.dashboard-split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.card-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Room Visualizer Grid
+   ========================================================================== */
+
+.filter-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-select, .search-input {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-select:focus, .search-input:focus {
+  border-color: var(--accent-gold);
+}
+
+.rooms-matrix {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.room-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.room-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.room-card.status-Available::before { background-color: var(--status-available); }
+.room-card.status-Occupied::before { background-color: var(--status-occupied); }
+.room-card.status-Dirty::before { background-color: var(--status-dirty); }
+.room-card.status-Maintenance::before { background-color: var(--status-maintenance); }
+
+.room-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-color);
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.room-number-display {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-serif);
+}
+
+.room-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.room-badge.Available { background-color: var(--status-available-bg); color: var(--status-available); }
+.room-badge.Occupied { background-color: var(--status-occupied-bg); color: var(--status-occupied); }
+.room-badge.Dirty { background-color: var(--status-dirty-bg); color: var(--status-dirty); }
+.room-badge.Maintenance { background-color: var(--status-maintenance-bg); color: var(--status-maintenance); }
+
+.room-type {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.room-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+
+.room-amenities {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+  flex-grow: 1;
+}
+
+.amenity-tag {
+  background-color: var(--bg-card);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.room-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.action-btn.primary {
+  background-color: var(--accent-blue);
+  color: white;
+}
+.action-btn.primary:hover {
+  background-color: #2563eb;
+}
+
+.action-btn.secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.action-btn.secondary:hover {
+  background-color: var(--border-color);
+}
+
+/* ==========================================================================
+   Table & Grid Lists (Bookings, Guests)
+   ========================================================================== */
+
+.table-wrapper {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.hms-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.hms-table th, .hms-table td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.hms-table th {
+  background-color: rgba(19, 27, 46, 0.4);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.hms-table tbody tr:hover {
+  background-color: rgba(28, 38, 66, 0.3);
+}
+
+.hms-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pill.success { background-color: var(--status-available-bg); color: var(--status-available); }
+.pill.info { background-color: var(--status-occupied-bg); color: var(--status-occupied); }
+.pill.warning { background-color: var(--status-dirty-bg); color: var(--status-dirty); }
+.pill.danger { background-color: var(--status-maintenance-bg); color: var(--status-maintenance); }
+.pill.neutral { background-color: var(--bg-card); color: var(--text-secondary); }
+
+/* ==========================================================================
+   Modals & Forms
+   ========================================================================= */
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modal-container {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 550px;
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
+  animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+}
+
+.modal-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-control {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  border-color: var(--accent-gold);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Button UI */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.btn-primary {
+  background-color: var(--accent-gold);
+  color: var(--bg-primary);
+}
+.btn-primary:hover {
+  background-color: #e5be49;
+}
+
+.btn-secondary {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-secondary:hover {
+  background-color: var(--border-color);
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* ==========================================================================
+   Auth / Login Screen
+   ========================================================================== */
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  padding: 1.5rem;
+}
+
+.login-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+  padding: 2.5rem;
+  animation: modalSlideUp 0.4s ease-out;
+}
+
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo svg {
+  width: 48px;
+  height: 48px;
+  color: var(--accent-gold);
+  margin-bottom: 0.75rem;
+}
+
+.login-logo h1 {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.login-logo p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.alert-error {
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ==========================================================================
+   Housekeeping Logs / Feed List
+   ========================================================================== */
+
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.log-item {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.log-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.log-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.log-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.log-notes {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.log-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Billing Detail / Print Styles
+   ========================================================================== */
+
+.billing-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.invoice-sheet {
+  background-color: white;
+  color: #1e293b;
+  border-radius: 8px;
+  padding: 3rem;
+  box-shadow: var(--shadow-lg);
+  font-family: 'Inter', sans-serif;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+}
+
+.invoice-brand h2 {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  color: #0f172a;
+}
+
+.invoice-brand p {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.invoice-meta {
+  text-align: right;
+}
+
+.invoice-meta h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: #0f172a;
+}
+
+.invoice-meta p {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.invoice-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.details-block h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.details-block p {
+  font-size: 0.9rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2.5rem;
+}
+
+.invoice-table th {
+  border-bottom: 2px solid #cbd5e1;
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.invoice-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 0.5rem;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.invoice-table tr.total-row td {
+  border-bottom: none;
+  padding-top: 1.5rem;
+}
+
+.invoice-summary {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.invoice-totals {
+  width: 250px;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #475569;
+}
+
+.total-line.grand {
+  border-top: 2px solid #e2e8f0;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.invoice-footer {
+  margin-top: 4rem;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+/* Print Specific Rules */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  .sidebar, .main-header, .billing-actions-card, .btn, .filter-bar, .modal-backdrop {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+  }
+  .content-body {
+    padding: 0 !important;
+  }
+  .invoice-sheet {
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}
