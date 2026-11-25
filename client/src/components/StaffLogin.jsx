@@ -20,11 +20,9 @@ const StaffLogin = () => {
   const [localError, setLocalError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Login fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // Signup / Request fields
   const [regName, setRegName] = useState('');
   const [regUsername, setRegUsername] = useState('');
   const [regEmail, setRegEmail] = useState('');
@@ -35,7 +33,6 @@ const StaffLogin = () => {
     const check = async () => {
       try {
         const status = await api('/auth/signup-status');
-        // Signup allowed only after admin is created
         setCanSignup(status.requiresInviteCode);
       } catch {
         setCanSignup(true);
@@ -70,7 +67,6 @@ const StaffLogin = () => {
     resetForm();
   };
 
-  // ─── LOGIN HANDLER ───────────────────────────────────────────────────────────
   const handleLogin = async (e) => {
     e.preventDefault();
     setLocalError('');
@@ -80,13 +76,13 @@ const StaffLogin = () => {
       if (user.role === 'admin') {
         localStorage.removeItem('hms_token');
         window.location.reload();
-        setLocalError('Admin ho? Admin portal use karo: /admin');
+        setLocalError('Admin account detected. Please use the Admin portal: /admin');
         return;
       }
       if (user.role !== selectedRole) {
         localStorage.removeItem('hms_token');
         window.location.reload();
-        setLocalError(`Yeh account "${selectedRole}" ke liye nahi hai.`);
+        setLocalError(`This account is not registered as "${selectedRole}".`);
       }
     } catch (err) {
       setLocalError(err.message);
@@ -95,19 +91,18 @@ const StaffLogin = () => {
     }
   };
 
-  // ─── REQUEST ACCOUNT HANDLER ─────────────────────────────────────────────────
   const handleRequest = async (e) => {
     e.preventDefault();
     setLocalError(''); setSuccessMsg('');
 
     if (!regName || !regUsername || !regEmail || !regPassword || !regConfirm) {
-      return setLocalError('Saare fields fill karo.');
+      return setLocalError('Please fill in all fields.');
     }
     if (regPassword !== regConfirm) {
-      return setLocalError('Dono passwords same nahi hain.');
+      return setLocalError('Passwords do not match.');
     }
     if (regPassword.length < 6) {
-      return setLocalError('Password kam se kam 6 characters ka hona chahiye.');
+      return setLocalError('Password must be at least 6 characters.');
     }
 
     setSubmitting(true);
@@ -124,7 +119,7 @@ const StaffLogin = () => {
         })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Request bhejne mein error aaya.');
+      if (!res.ok) throw new Error(data.message || 'Failed to send request.');
       setSuccessMsg(data.message);
       resetForm();
     } catch (err) {
@@ -168,21 +163,20 @@ const StaffLogin = () => {
     <div className="login-wrapper">
       <div className="login-card" style={{ maxWidth: '440px', width: '100%' }}>
 
-        {/* Logo */}
         <div className="login-logo">
           <Hotel />
           <h1>Grand Horizon</h1>
           <p>Staff Portal</p>
         </div>
 
-        {/* ── STEP 1: Role Select ─────────────────────────────────────────── */}
+        {/* STEP 1 — Role Select */}
         {step === 'select' && (
           <div>
             <p style={{
               textAlign: 'center', color: 'var(--text-muted)',
               fontSize: '0.875rem', marginBottom: '1.5rem'
             }}>
-              Apna role select karo
+              Select your role to continue
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {Object.entries(roleConfig).map(([key, cfg]) => {
@@ -225,10 +219,9 @@ const StaffLogin = () => {
           </div>
         )}
 
-        {/* ── STEP 2: Login / Signup Form ─────────────────────────────────── */}
+        {/* STEP 2 — Login / Request Form */}
         {step === 'form' && rc && (
           <div>
-            {/* Back + Role Badge */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
               <button
                 onClick={goBack}
@@ -264,7 +257,8 @@ const StaffLogin = () => {
                   disabled={m === 'signup' && !canSignup}
                   style={{
                     flex: 1, padding: '0.55rem',
-                    border: 'none', borderRadius: '8px', cursor: m === 'signup' && !canSignup ? 'not-allowed' : 'pointer',
+                    border: 'none', borderRadius: '8px',
+                    cursor: m === 'signup' && !canSignup ? 'not-allowed' : 'pointer',
                     fontWeight: '600', fontSize: '0.875rem',
                     background: mode === m ? 'var(--bg-card)' : 'transparent',
                     color: mode === m ? 'var(--text-primary)' : 'var(--text-muted)',
@@ -278,7 +272,7 @@ const StaffLogin = () => {
               ))}
             </div>
 
-            {/* ─── LOGIN FORM ─── */}
+            {/* LOGIN FORM */}
             {mode === 'login' && (
               <form onSubmit={handleLogin}>
                 {displayError && (
@@ -296,7 +290,7 @@ const StaffLogin = () => {
                     }} />
                     <input
                       type="text" className="form-control"
-                      placeholder="Username daalo"
+                      placeholder="Enter your username"
                       value={username} onChange={e => setUsername(e.target.value)}
                       style={{ paddingLeft: '2.25rem' }}
                       required autoFocus
@@ -313,7 +307,7 @@ const StaffLogin = () => {
                     }} />
                     <input
                       type={showPass ? 'text' : 'password'} className="form-control"
-                      placeholder="Password daalo"
+                      placeholder="Enter your password"
                       value={password} onChange={e => setPassword(e.target.value)}
                       style={{ paddingLeft: '2.25rem', paddingRight: '2.75rem' }}
                       required
@@ -329,12 +323,12 @@ const StaffLogin = () => {
                   style={{ width: '100%', marginTop: '0.5rem' }}
                   disabled={submitting}
                 >
-                  {submitting ? 'Logging in...' : 'Sign In'}
+                  {submitting ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>
             )}
 
-            {/* ─── REQUEST ACCOUNT FORM ─── */}
+            {/* REQUEST ACCOUNT FORM */}
             {mode === 'signup' && (
               <form onSubmit={handleRequest}>
                 {successMsg ? (
@@ -344,10 +338,10 @@ const StaffLogin = () => {
                   }}>
                     <CheckCircle size={48} color="#10b981" />
                     <p style={{ color: '#10b981', fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>
-                      {successMsg}
+                      Request sent successfully!
                     </p>
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', margin: 0 }}>
-                      Admin approve karega tab aap sign in kar sakoge.
+                      Your request has been sent to the admin. You can sign in once approved.
                     </p>
                     <button
                       type="button"
@@ -355,7 +349,7 @@ const StaffLogin = () => {
                       className="btn btn-primary"
                       style={{ marginTop: '0.5rem', padding: '0.5rem 1.5rem' }}
                     >
-                      Sign In page pe jao
+                      Go to Sign In
                     </button>
                   </div>
                 ) : (
@@ -371,7 +365,7 @@ const StaffLogin = () => {
                       borderRadius: '8px', padding: '0.65rem 0.9rem',
                       fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1.1rem'
                     }}>
-                      Request bhejne ke baad admin approve karega. Approve hone ke baad hi sign in ho sakoge.
+                      Your request will be reviewed by the admin. You can sign in only after approval.
                     </div>
 
                     <div className="form-group">
@@ -383,7 +377,7 @@ const StaffLogin = () => {
                         }} />
                         <input
                           type="text" className="form-control"
-                          placeholder="Poora naam"
+                          placeholder="Enter your full name"
                           value={regName} onChange={e => setRegName(e.target.value)}
                           style={{ paddingLeft: '2.25rem' }} required autoFocus
                         />
@@ -399,7 +393,7 @@ const StaffLogin = () => {
                         }} />
                         <input
                           type="text" className="form-control"
-                          placeholder="Username banao"
+                          placeholder="Choose a username"
                           value={regUsername} onChange={e => setRegUsername(e.target.value)}
                           style={{ paddingLeft: '2.25rem' }} required
                         />
@@ -415,7 +409,7 @@ const StaffLogin = () => {
                         }} />
                         <input
                           type="email" className="form-control"
-                          placeholder="Email address"
+                          placeholder="Enter your email address"
                           value={regEmail} onChange={e => setRegEmail(e.target.value)}
                           style={{ paddingLeft: '2.25rem' }} required
                         />
@@ -431,7 +425,7 @@ const StaffLogin = () => {
                         }} />
                         <input
                           type={showRegPass ? 'text' : 'password'} className="form-control"
-                          placeholder="Password (min 6 chars)"
+                          placeholder="Create a password (min 6 chars)"
                           value={regPassword} onChange={e => setRegPassword(e.target.value)}
                           style={{ paddingLeft: '2.25rem', paddingRight: '2.75rem' }} required
                         />
@@ -450,7 +444,7 @@ const StaffLogin = () => {
                         }} />
                         <input
                           type="password" className="form-control"
-                          placeholder="Password dobara daalo"
+                          placeholder="Re-enter your password"
                           value={regConfirm} onChange={e => setRegConfirm(e.target.value)}
                           style={{ paddingLeft: '2.25rem' }} required
                         />
@@ -471,7 +465,7 @@ const StaffLogin = () => {
                       disabled={submitting}
                     >
                       <Send size={15} />
-                      {submitting ? 'Bhej rahe hain...' : 'Send Request to Admin'}
+                      {submitting ? 'Sending...' : 'Send Request to Admin'}
                     </button>
                   </>
                 )}

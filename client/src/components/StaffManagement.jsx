@@ -179,11 +179,11 @@ const StaffManagement = () => {
 
         {loadingReqs ? (
           <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Load ho raha hai...
+            Loading...
           </div>
         ) : requests.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Koi pending request nahi hai.
+            No pending requests.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -286,11 +286,11 @@ const StaffManagement = () => {
 
         {loadingUsers ? (
           <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Load ho raha hai...
+            Loading...
           </div>
         ) : users.filter(u => u.role !== 'admin').length === 0 ? (
           <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.88rem' }}>
-            Koi staff member nahi hai. Requests approve karo upar se.
+            No staff members yet. Approve requests from above.
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>

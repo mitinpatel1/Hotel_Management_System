@@ -5,7 +5,7 @@ import AccountRequest from '../models/AccountRequest.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'grand_horizon_secret_key_2026';
 
-// ─── SIGNUP STATUS CHECK ────────────────────────────────────────────────────
+// ─── SIGNUP STATUS CHECK ─────────────────────────────────────────────────────
 export const checkSignupStatus = async (req, res) => {
   try {
     const userCount = await User.countDocuments();
@@ -19,21 +19,21 @@ export const checkSignupStatus = async (req, res) => {
   }
 };
 
-// ─── REGISTER (Admin first-time only) ───────────────────────────────────────
+// ─── REGISTER (Admin first-time only) ────────────────────────────────────────
 export const register = async (req, res) => {
   try {
     const { username, password, email, name } = req.body;
 
     if (!username || !password || !email || !name) {
-      return res.status(400).json({ message: 'Saare fields fill karo.' });
+      return res.status(400).json({ message: 'All fields are required.' });
     }
     if (password.length < 6) {
-      return res.status(400).json({ message: 'Password kam se kam 6 characters ka hona chahiye.' });
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
     }
 
     const userCount = await User.countDocuments();
     if (userCount > 0) {
-      return res.status(403).json({ message: 'Admin account pehle se ban chuka hai.' });
+      return res.status(403).json({ message: 'Admin account already exists.' });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
@@ -46,17 +46,17 @@ export const register = async (req, res) => {
     );
 
     return res.status(201).json({
-      message: 'Admin account ban gaya!',
+      message: 'Admin account created successfully!',
       token,
       user: { id: user._id, username: user.username, role: user.role, name: user.name, email: user.email }
     });
 
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'Username ya email already exist karta hai.' });
+      return res.status(400).json({ message: 'Username or email already exists.' });
     }
     console.error('Register error:', error);
-    res.status(500).json({ message: 'Account banane mein error aaya.' });
+    res.status(500).json({ message: 'Error creating account.' });
   }
 };
 
@@ -66,43 +66,41 @@ export const requestAccount = async (req, res) => {
     const { name, username, email, password, role } = req.body;
 
     if (!name || !username || !email || !password || !role) {
-      return res.status(400).json({ message: 'Saare fields fill karo.' });
+      return res.status(400).json({ message: 'All fields are required.' });
     }
     if (password.length < 6) {
-      return res.status(400).json({ message: 'Password kam se kam 6 characters ka hona chahiye.' });
+      return res.status(400).json({ message: 'Password must be at least 6 characters.' });
     }
     if (!['receptionist', 'housekeeper'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role.' });
     }
 
-    // Check existing User
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'Is username ya email se account pehle se exist karta hai.' });
+      return res.status(400).json({ message: 'An account with this username or email already exists.' });
     }
 
-    // Check pending request
     const existingRequest = await AccountRequest.findOne({
       $or: [{ username }, { email }],
       status: 'pending'
     });
     if (existingRequest) {
-      return res.status(400).json({ message: 'Is username ya email ki request pehle se pending hai. Admin ka wait karo.' });
+      return res.status(400).json({ message: 'A pending request with this username or email already exists. Please wait for admin approval.' });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
     await AccountRequest.create({ name, username, email, password_hash, role, status: 'pending' });
 
     return res.status(201).json({
-      message: 'Request bhej di gayi! Admin approve karega tab account banega.'
+      message: 'Request sent successfully! You will be able to sign in once the admin approves your account.'
     });
 
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'Is username ya email ki request already hai.' });
+      return res.status(400).json({ message: 'A request with this username or email already exists.' });
     }
     console.error('Request account error:', error);
-    res.status(500).json({ message: 'Request bhejne mein error aaya.' });
+    res.status(500).json({ message: 'Failed to send request. Please try again.' });
   }
 };
 
@@ -112,7 +110,7 @@ export const getPendingRequests = async (req, res) => {
     const requests = await AccountRequest.find({ status: 'pending' }).sort({ createdAt: -1 });
     res.json(requests);
   } catch (error) {
-    res.status(500).json({ message: 'Requests fetch karne mein error aaya.' });
+    res.status(500).json({ message: 'Error fetching pending requests.' });
   }
 };
 
@@ -123,20 +121,18 @@ export const approveRequest = async (req, res) => {
     const request = await AccountRequest.findById(id);
 
     if (!request) {
-      return res.status(404).json({ message: 'Request nahi mili.' });
+      return res.status(404).json({ message: 'Request not found.' });
     }
     if (request.status !== 'pending') {
-      return res.status(400).json({ message: 'Yeh request pehle se process ho chuki hai.' });
+      return res.status(400).json({ message: 'This request has already been processed.' });
     }
 
-    // Check if user already exists (edge case)
     const existing = await User.findOne({ $or: [{ username: request.username }, { email: request.email }] });
     if (existing) {
       await AccountRequest.findByIdAndUpdate(id, { status: 'approved' });
-      return res.status(400).json({ message: 'Is username ya email se user pehle se exist karta hai.' });
+      return res.status(400).json({ message: 'A user with this username or email already exists.' });
     }
 
-    // Create user from request
     const user = await User.create({
       name: request.name,
       username: request.username,
@@ -148,13 +144,13 @@ export const approveRequest = async (req, res) => {
     await AccountRequest.findByIdAndUpdate(id, { status: 'approved' });
 
     res.json({
-      message: `${request.name} ka account approve ho gaya!`,
+      message: `${request.name}'s account has been approved!`,
       user: { id: user._id, username: user.username, role: user.role, name: user.name }
     });
 
   } catch (error) {
     console.error('Approve error:', error);
-    res.status(500).json({ message: 'Approve karne mein error aaya.' });
+    res.status(500).json({ message: 'Error approving request.' });
   }
 };
 
@@ -165,16 +161,16 @@ export const rejectRequest = async (req, res) => {
     const request = await AccountRequest.findById(id);
 
     if (!request) {
-      return res.status(404).json({ message: 'Request nahi mili.' });
+      return res.status(404).json({ message: 'Request not found.' });
     }
 
     await AccountRequest.findByIdAndDelete(id);
 
-    res.json({ message: `${request.name} ki request reject kar di gayi.` });
+    res.json({ message: `${request.name}'s request has been rejected.` });
 
   } catch (error) {
     console.error('Reject error:', error);
-    res.status(500).json({ message: 'Reject karne mein error aaya.' });
+    res.status(500).json({ message: 'Error rejecting request.' });
   }
 };
 

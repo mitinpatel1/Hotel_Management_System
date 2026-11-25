@@ -19,7 +19,7 @@ const AdminLogin = () => {
       if (user.role !== 'admin') {
         localStorage.removeItem('hms_token');
         window.location.reload();
-        setLocalError('Yeh page sirf Admin ke liye hai.');
+        setLocalError('Access denied. This page is for Admins only.');
       }
     } catch (err) {
       setLocalError(err.message);
@@ -49,30 +49,30 @@ const AdminLogin = () => {
           color: '#ef4444', fontSize: '0.82rem', fontWeight: '600'
         }}>
           <ShieldAlert size={16} />
-          Yeh page sirf Admin ke liye hai
+          Restricted Access — Admins Only
         </div>
 
         {displayError && (
-          <div className="alert-error" style={{ marginBottom: '1rem' }}>{displayError}</div>
+          <div className="alert alert-error" style={{ marginBottom: '1rem' }}>{displayError}</div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-            <label>Admin Username</label>
+            <label className="form-label">Admin Username</label>
             <input
               type="text" className="form-control"
-              placeholder="admin username"
+              placeholder="Enter admin username"
               value={username} onChange={e => setUsername(e.target.value)}
               disabled={submitting} required autoFocus
             />
           </div>
 
           <div className="form-group" style={{ marginBottom: '1.75rem' }}>
-            <label>Password</label>
+            <label className="form-label">Password</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showPass ? 'text' : 'password'} className="form-control"
-                placeholder="admin password"
+                placeholder="Enter admin password"
                 value={password} onChange={e => setPassword(e.target.value)}
                 disabled={submitting} required style={{ paddingRight: '2.75rem' }}
               />
@@ -107,9 +107,9 @@ const AdminLogin = () => {
           textAlign: 'center', marginTop: '1.25rem',
           fontSize: '0.75rem', color: 'var(--text-muted)'
         }}>
-          Staff member ho?{' '}
+          Staff member?{' '}
           <a href="/" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
-            Main page pe jao
+            Go to Staff Portal
           </a>
         </p>
       </div>
