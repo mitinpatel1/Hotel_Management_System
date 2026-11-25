@@ -47,6 +47,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (username, password, email, name, role = 'receptionist', inviteCode = '') => {
+    setError(null);
+    try {
+      const data = await api('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ username, password, email, name, role, inviteCode })
+      });
+      localStorage.setItem('hms_token', data.token);
+      setUser(data.user);
+      return data.user;
+    } catch (err) {
+      setError(err.message || 'Registration failed.');
+      throw err;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('hms_token');
     setUser(null);
@@ -61,6 +77,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     login,
+    register,
     logout,
     isAdmin,
     isReceptionist,

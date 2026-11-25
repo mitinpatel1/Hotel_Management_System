@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext.jsx';
 import { useApp } from './contexts/AppContext.jsx';
 
 // Component imports
-import Login from './components/Login.jsx';
+import AdminLogin from './components/AdminLogin.jsx';
+import StaffLogin from './components/StaffLogin.jsx';
 import Dashboard from './components/Dashboard.jsx';
 import RoomsGrid from './components/RoomsGrid.jsx';
 import Bookings from './components/Bookings.jsx';
 import Guests from './components/Guests.jsx';
 import Housekeeping from './components/Housekeeping.jsx';
 import Billing from './components/Billing.jsx';
+import StaffManagement from './components/StaffManagement.jsx';
 
 // Icon imports
 import { 
@@ -23,100 +26,67 @@ import {
   LogOut, 
   Sun, 
   Moon, 
-  Bell 
+  Bell,
+  UserCog
 } from 'lucide-react';
 
-function App() {
-  const { user, loading, logout } = useAuth();
+// ── Loading Screen ──────────────────────────────────────────────────────────
+const LoadingScreen = () => (
+  <div style={{
+    height: '100vh', display: 'flex', flexDirection: 'column',
+    justifyContent: 'center', alignItems: 'center',
+    background: '#0a0f1d', color: '#f3f4f6', fontFamily: 'sans-serif'
+  }}>
+    <div style={{ marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
+      Loading Grand Horizon Portal...
+    </div>
+    <div style={{ color: '#6b7280' }}>Checking session token security...</div>
+  </div>
+);
+
+// ── Main Dashboard Shell (shown after login) ────────────────────────────────
+const DashboardShell = () => {
+  const { user, logout } = useAuth();
   const { theme, toggleTheme, notification } = useApp();
-  
-  // Single-page application routing state
   const [view, setView] = useState('dashboard');
   const [selectedBooking, setSelectedBooking] = useState(null);
 
-  if (loading) {
-    return (
-      <div style={{
-        height: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#0a0f1d',
-        color: '#f3f4f6',
-        fontFamily: 'sans-serif'
-      }}>
-        <div style={{ marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>Loading Grand Horizon Portal...</div>
-        <div style={{ color: 'var(--text-muted)' }}>Checking session token security...</div>
-      </div>
-    );
-  }
-
-  // If not logged in, render the login card
-  if (!user) {
-    return <Login />;
-  }
-
-  // Define sidebar navigation items based on role authorization
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'receptionist'] },
     { id: 'rooms', label: 'Rooms Matrix', icon: Bed, roles: ['admin', 'receptionist'] },
     { id: 'bookings', label: 'Bookings Planner', icon: CalendarCheck, roles: ['admin', 'receptionist'] },
     { id: 'guests', label: 'Guest Directory', icon: Users2, roles: ['admin', 'receptionist'] },
     { id: 'housekeeping', label: 'Housekeeping', icon: Sparkles, roles: ['admin', 'receptionist', 'housekeeper'] },
-    { id: 'billing', label: 'Billing & POS', icon: ReceiptText, roles: ['admin', 'receptionist'] }
+    { id: 'billing', label: 'Billing & POS', icon: ReceiptText, roles: ['admin', 'receptionist'] },
+    { id: 'staff', label: 'Staff Management', icon: UserCog, roles: ['admin'] },
   ];
 
-  // Filter items matching user's permissions
   const authorizedNavItems = navItems.filter(item => item.roles.includes(user.role));
-
-  // Determine active view fallback if unauthorized role lands on restricted tabs
-  const activeView = authorizedNavItems.some(item => item.id === view) 
-    ? view 
+  const activeView = authorizedNavItems.some(item => item.id === view)
+    ? view
     : authorizedNavItems[0]?.id || 'housekeeping';
 
-  const getHeaderTitle = () => {
-    switch (activeView) {
-      case 'dashboard': return 'Resort Overview';
-      case 'rooms': return 'Room Status Matrix';
-      case 'bookings': return 'Reservations Ledger';
-      case 'guests': return 'Guest Database';
-      case 'housekeeping': return 'Housekeeping Operations';
-      case 'billing': return 'Point of Sale & Billing';
-      default: return 'Grand Horizon HMS';
-    }
+  const headerTitles = {
+    dashboard: ['Resort Overview', 'Real-time property metrics, arrivals, and departures.'],
+    rooms: ['Room Status Matrix', 'Visual representation of all rooms and immediate statuses.'],
+    bookings: ['Reservations Ledger', 'Book stays, execute check-in/outs, and schedule reservations.'],
+    guests: ['Guest Database', 'Guest database indexing detailed contact records and histories.'],
+    housekeeping: ['Housekeeping Operations', 'Housekeeper console showing rooms requiring cleaning or repair logs.'],
+    billing: ['Point of Sale & Billing', 'Invoice audits, posting additional charges, and checkout settlement.'],
+    staff: ['Staff Management', 'Staff accounts, invite code, aur permissions manage karo.'],
   };
-
-  const getHeaderSubtitle = () => {
-    switch (activeView) {
-      case 'dashboard': return 'Real-time property metrics, arrivals, and departures.';
-      case 'rooms': return 'Visual representation of all rooms and immediate statuses.';
-      case 'bookings': return 'Book stays, execute check-in/outs, and schedule reservations.';
-      case 'guests': return 'Guest database indexing detailed contact records and histories.';
-      case 'housekeeping': return 'Housekeeper console showing rooms requiring cleaning or repair logs.';
-      case 'billing': return 'Invoice audits, posting additional charges, and checkout settlement.';
-      default: return 'Secure Hotel Operations Management';
-    }
-  };
+  const [headerTitle, headerSubtitle] = headerTitles[activeView] || ['Grand Horizon HMS', ''];
 
   return (
     <div className="app-container">
-      {/* Toast Notification Banner */}
       {notification && (
         <div style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          zIndex: 9999,
+          position: 'fixed', top: '20px', right: '20px', zIndex: 9999,
           background: notification.type === 'success' ? 'var(--status-available-bg)' : 'var(--status-maintenance-bg)',
           color: notification.type === 'success' ? 'var(--status-available)' : '#ef4444',
           border: `1px solid ${notification.type === 'success' ? 'var(--status-available)' : '#ef4444'}`,
-          borderRadius: '8px',
-          padding: '1rem 1.5rem',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem',
+          borderRadius: '8px', padding: '1rem 1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
           animation: 'modalSlideUp 0.2s ease-out'
         }}>
           <Bell size={18} />
@@ -124,7 +94,6 @@ function App() {
         </div>
       )}
 
-      {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="logo-container">
           <Hotel className="logo-icon" />
@@ -164,51 +133,83 @@ function App() {
         </div>
       </aside>
 
-      {/* Main Workspace Frame */}
       <main className="main-content">
         <header className="main-header">
           <div className="header-title-container">
-            <h1 className="header-title">{getHeaderTitle()}</h1>
-            <span className="header-subtitle">{getHeaderSubtitle()}</span>
+            <h1 className="header-title">{headerTitle}</h1>
+            <span className="header-subtitle">{headerSubtitle}</span>
           </div>
-
           <div className="header-actions">
-            <span className="system-time">
-              🕒 Staging Mode
-            </span>
+            <span className="system-time">🕒 Live</span>
             <button className="theme-toggle-btn" onClick={toggleTheme} title="Toggle Theme">
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
           </div>
         </header>
 
-        {/* View Switcher */}
         <div className="content-body">
-          {activeView === 'dashboard' && (
-            <Dashboard 
-              setView={setView} 
-              setSelectedBooking={setSelectedBooking} 
-            />
-          )}
+          {activeView === 'dashboard' && <Dashboard setView={setView} setSelectedBooking={setSelectedBooking} />}
           {activeView === 'rooms' && <RoomsGrid />}
-          {activeView === 'bookings' && (
-            <Bookings 
-              setView={setView} 
-              setSelectedBooking={setSelectedBooking} 
-            />
-          )}
+          {activeView === 'bookings' && <Bookings setView={setView} setSelectedBooking={setSelectedBooking} />}
           {activeView === 'guests' && <Guests />}
           {activeView === 'housekeeping' && <Housekeeping />}
-          {activeView === 'billing' && (
-            <Billing 
-              selectedBooking={selectedBooking} 
-              setSelectedBooking={setSelectedBooking} 
-            />
-          )}
+          {activeView === 'billing' && <Billing selectedBooking={selectedBooking} setSelectedBooking={setSelectedBooking} />}
+          {activeView === 'staff' && <StaffManagement />}
         </div>
       </main>
     </div>
   );
+};
+
+// ── Route Guards ─────────────────────────────────────────────────────────────
+// Admin route — only admin can access, others redirect to /
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return children; // Show admin login
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  return <DashboardShell />;
+};
+
+// Staff route — receptionist/housekeeper only, admin → /admin
+const StaffRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return children; // Show staff login
+  if (user.role === 'admin') return <Navigate to="/admin" replace />;
+  return <DashboardShell />;
+};
+
+// ── Main App ─────────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <Routes>
+      {/* Staff portal — receptionist & housekeeper */}
+      <Route
+        path="/"
+        element={
+          <StaffRoute>
+            <StaffLogin />
+          </StaffRoute>
+        }
+      />
+
+      {/* Admin portal — secret URL */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminLogin />
+          </AdminRoute>
+        }
+      />
+
+      {/* Catch-all → staff portal */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
 export default App;
+
+

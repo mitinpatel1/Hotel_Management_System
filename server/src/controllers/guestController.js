@@ -1,20 +1,18 @@
-import { dbAll, dbGet, dbRun } from '../config/database.js';
+import Guest from '../models/Guest.js';
+import Booking from '../models/Booking.js';
+import Room from '../models/Room.js';
 
 export const getAllGuests = async (req, res) => {
   const { search } = req.query;
-  let sql = 'SELECT * FROM guests';
-  const params = [];
+  const filter = {};
 
   if (search) {
-    sql += ' WHERE name LIKE ? OR email LIKE ? OR phone LIKE ? OR id_number LIKE ?';
-    const wildcard = `%${search}%`;
-    params.push(wildcard, wildcard, wildcard, wildcard);
+    const regex = new RegExp(search, 'i');
+    filter.$or = [{ name: regex }, { email: regex }, { phone: regex }, { id_number: regex }];
   }
 
-  sql += ' ORDER BY name ASC';
-
   try {
-    const guests = await dbAll(sql, params);
+    const guests = await Guest.find(filter).sort({ name: 1 });
     res.json(guests);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving guest records.' });
@@ -22,24 +20,21 @@ export const getAllGuests = async (req, res) => {
 };
 
 export const getGuestById = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    const guest = await dbGet('SELECT * FROM guests WHERE id = ?', [id]);
-    if (!guest) {
-      return res.status(404).json({ message: 'Guest profile not found.' });
-    }
+    const guest = await Guest.findById(req.params.id);
+    if (!guest) return res.status(404).json({ message: 'Guest profile not found.' });
 
-    // Include booking history for this guest
-    const bookings = await dbAll(`
-      SELECT b.*, r.room_number, r.type as room_type 
-      FROM bookings b
-      JOIN rooms r ON b.room_id = r.id
-      WHERE b.guest_id = ?
-      ORDER BY b.check_in_date DESC
-    `, [id]);
+    const bookings = await Booking.find({ guest_id: req.params.id })
+      .populate('room_id', 'room_number type')
+      .sort({ check_in_date: -1 });
 
-    res.json({ ...guest, bookings });
+    const bookingsFormatted = bookings.map(b => ({
+      ...b.toObject(),
+      room_number: b.room_id?.room_number,
+      room_type: b.room_id?.type,
+    }));
+
+    res.json({ ...guest.toObject(), bookings: bookingsFormatted });
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving guest profile.' });
   }
@@ -53,22 +48,14 @@ export const createGuest = async (req, res) => {
   }
 
   try {
-    const result = await dbRun(
-      'INSERT INTO guests (name, email, phone, id_type, id_number, notes) VALUES (?, ?, ?, ?, ?, ?)',
-      [name, email || null, phone, id_type, id_number, notes || null]
-    );
-
-    res.status(201).json({
-      message: 'Guest profile created successfully.',
-      guest: { id: result.id, name, email, phone, id_type, id_number, notes }
-    });
+    const guest = await Guest.create({ name, email: email || null, phone, id_type, id_number, notes: notes || null });
+    res.status(201).json({ message: 'Guest profile created successfully.', guest });
   } catch (error) {
     res.status(500).json({ message: 'Error creating guest profile.' });
   }
 };
 
 export const updateGuest = async (req, res) => {
-  const { id } = req.params;
   const { name, email, phone, id_type, id_number, notes } = req.body;
 
   if (!name || !phone || !id_type || !id_number) {
@@ -76,16 +63,12 @@ export const updateGuest = async (req, res) => {
   }
 
   try {
-    const guest = await dbGet('SELECT id FROM guests WHERE id = ?', [id]);
-    if (!guest) {
-      return res.status(404).json({ message: 'Guest profile not found.' });
-    }
-
-    await dbRun(
-      'UPDATE guests SET name = ?, email = ?, phone = ?, id_type = ?, id_number = ?, notes = ? WHERE id = ?',
-      [name, email || null, phone, id_type, id_number, notes || null, id]
+    const guest = await Guest.findByIdAndUpdate(
+      req.params.id,
+      { name, email: email || null, phone, id_type, id_number, notes: notes || null },
+      { new: true }
     );
-
+    if (!guest) return res.status(404).json({ message: 'Guest profile not found.' });
     res.json({ message: 'Guest profile updated successfully.' });
   } catch (error) {
     res.status(500).json({ message: 'Error updating guest profile.' });
@@ -93,23 +76,18 @@ export const updateGuest = async (req, res) => {
 };
 
 export const deleteGuest = async (req, res) => {
-  const { id } = req.params;
-
   try {
-    // Check if guest has active bookings
-    const activeBooking = await dbGet(
-      "SELECT id FROM bookings WHERE guest_id = ? AND status IN ('Pending', 'Confirmed', 'Checked-in')",
-      [id]
-    );
+    const activeBooking = await Booking.findOne({
+      guest_id: req.params.id,
+      status: { $in: ['Pending', 'Confirmed', 'Checked-in'] }
+    });
 
     if (activeBooking) {
       return res.status(400).json({ message: 'Cannot delete guest with active or future reservations.' });
     }
 
-    const result = await dbRun('DELETE FROM guests WHERE id = ?', [id]);
-    if (result.changes === 0) {
-      return res.status(404).json({ message: 'Guest profile not found.' });
-    }
+    const result = await Guest.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).json({ message: 'Guest profile not found.' });
 
     res.json({ message: 'Guest profile deleted successfully.' });
   } catch (error) {
